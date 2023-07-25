@@ -1,0 +1,37 @@
+From 5422452d48e635236cffcb1efb2899459c83ef2f Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Tue, 25 Jul 2023 15:03:38 -0700
+Subject: [PATCH] Change www-data to be uid/gid 1000
+
+---
+ contrib/docker/Dockerfile.apache | 1 +
+ contrib/docker/Dockerfile.fpm    | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/contrib/docker/Dockerfile.apache b/contrib/docker/Dockerfile.apache
+index 231d5469..64e081bd 100644
+--- a/contrib/docker/Dockerfile.apache
++++ b/contrib/docker/Dockerfile.apache
+@@ -2,6 +2,7 @@ FROM php:8.1-apache-bullseye
+ 
+ ENV COMPOSER_MEMORY_LIMIT=-1
+ ARG DEBIAN_FRONTEND=noninteractive
++RUN deluser www-data; delgroup www-data; addgroup --gid 1000 www-data && adduser --uid 1000 --gid 1000 --disabled-password --no-create-home www-data
+ WORKDIR /var/www/
+ 
+ # Get Composer binary
+diff --git a/contrib/docker/Dockerfile.fpm b/contrib/docker/Dockerfile.fpm
+index d24eb8ab..2e4c2a65 100644
+--- a/contrib/docker/Dockerfile.fpm
++++ b/contrib/docker/Dockerfile.fpm
+@@ -2,6 +2,7 @@ FROM php:8.1-fpm-bullseye
+ 
+ ENV COMPOSER_MEMORY_LIMIT=-1
+ ARG DEBIAN_FRONTEND=noninteractive
++RUN deluser www-data; delgroup www-data; addgroup --gid 1000 www-data && adduser --uid 1000 --gid 1000 --disabled-password --no-create-home www-data
+ WORKDIR /var/www/
+ 
+ # Get Composer binary
+-- 
+2.41.0
+

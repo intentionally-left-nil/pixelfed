@@ -1,0 +1,61 @@
+From 8d1a6866cb23b3d6609cd03e403c73e4cc868180 Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Tue, 25 Jul 2023 15:00:32 -0700
+Subject: [PATCH] Add postgres and sqlite to the docker images
+
+---
+ contrib/docker/Dockerfile.apache | 6 +++---
+ contrib/docker/Dockerfile.fpm    | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/contrib/docker/Dockerfile.apache b/contrib/docker/Dockerfile.apache
+index 9c33aee1..231d5469 100644
+--- a/contrib/docker/Dockerfile.apache
++++ b/contrib/docker/Dockerfile.apache
+@@ -38,8 +38,8 @@ RUN apt-get update \
+ ## Video Processing
+       ffmpeg \
+ ## Database
+-#      libpq-dev \
+-#      libsqlite3-dev \
++      libpq-dev \
++      libsqlite3-dev \
+       mariadb-client \
+ # Locales Update
+   && sed -i '/en_US/s/^#//g' /etc/locale.gen \
+@@ -62,7 +62,7 @@ RUN apt-get update \
+   && docker-php-ext-enable redis \
+ #PHP Database extensions
+   && docker-php-ext-install pdo_mysql \
+-#pdo_pgsql pdo_sqlite \
++pdo_pgsql pdo_sqlite \
+ #PHP extensions (dependencies)
+   && docker-php-ext-configure intl \
+   && docker-php-ext-install -j$(nproc) intl bcmath zip pcntl exif curl \
+diff --git a/contrib/docker/Dockerfile.fpm b/contrib/docker/Dockerfile.fpm
+index 0b8e5c11..d24eb8ab 100644
+--- a/contrib/docker/Dockerfile.fpm
++++ b/contrib/docker/Dockerfile.fpm
+@@ -38,8 +38,8 @@ RUN apt-get update \
+ ## Video Processing
+       ffmpeg \
+ ## Database
+-#      libpq-dev \
+-#      libsqlite3-dev \
++      libpq-dev \
++      libsqlite3-dev \
+       mariadb-client \
+ # Locales Update
+   && sed -i '/en_US/s/^#//g' /etc/locale.gen \
+@@ -62,7 +62,7 @@ RUN apt-get update \
+   && docker-php-ext-enable redis \
+ #PHP Database extensions
+   && docker-php-ext-install pdo_mysql \
+-#pdo_pgsql pdo_sqlite \
++pdo_pgsql pdo_sqlite \
+ #PHP extensions (dependencies)
+   && docker-php-ext-configure intl \
+   && docker-php-ext-install -j$(nproc) intl bcmath zip pcntl exif curl \
+-- 
+2.41.0
+
