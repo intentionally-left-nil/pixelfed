@@ -74,7 +74,7 @@ jobs:
           tags: ${{ steps.fpm-meta.outputs.tags }}
           labels: ${{ steps.fpm-meta.outputs.labels }}
 
-      - name: Generate docker metadata for pixelfed-fpm
+      - name: Generate docker metadata for pixelfed-apache
         id: apache-meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
