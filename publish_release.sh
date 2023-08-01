@@ -17,4 +17,4 @@ echo "$version" > pixelfed_ref.txt || exit 1
 git add pixelfed_ref.txt || exit 1
 git commit -m "$version" || exit 1
 git tag "$version" || exit 1
-git push origin "$version" || exit 1
+git push origin "refs/tags/$version" || exit 1
