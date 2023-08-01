@@ -11,11 +11,11 @@ corresponding to the [php-fpm](https://github.com/pixelfed/pixelfed/blob/dev/con
 
 For each docker image, the following tags are available:
 
-| Tag Name | Auto-updates | Description                                      |
-| -------- | ------------ | ------------------------------------------------ |
-| staging  | yes          | Alpha build of the latest commits, updated daily |
-| dev      | yes          | Beta build of the latest commits, updated weekly |
-| 0.11.8   | no           | 0.11.8 release                                   |
+| Tag Name | Auto-updates | Description                                     |
+| -------- | ------------ | ----------------------------------------------- |
+| alpha    | yes          | Build of the pixelfed dev branch, updated daily |
+| 0.11.8   | no           | 0.11.8 release                                  |
+| latest   | yes          | Latest tagged release (e.g. 0.11.8)             |
 
 # Custom modifications
 
@@ -51,12 +51,8 @@ It's really easy to manage the images yourself
 1. [Fork](https://github.com/intentionally-left-nil/pixelfed/fork) the repository
 1. In your own repo, add/change/remove any of the patches you want
 1. Change the [pixelfed_ref.txt](./pixelfed_ref.txt) file correspond to the appropriate pixelfed commit you want. This could be a github branch (e.g. `dev`, or a tag `v0.11.8`, or a SHA `70e8203`)
-1. Push your changes to github, and it will automatically build your new docker images
+1. Push your changes to github, and it will automatically build images tagged under :alpha
 
-Tip: This repository uses a different git branch to correspond to each tag built. So, if I wanted to build pixelfed `v0.11.8`, I would
+# Creating a new tagged release
 
-1. git checkout -b 0.11.8
-1. Modify [pixelfed_ref.txt](./pixelfed_ref.txt) to contain `v0.11.8`
-1. git commit -m "v0.11.8"
-1. git tag v0.11.8
-1. git push origin v0.11.8
+Run `./publish_release.sh v0.11.8`
