@@ -2,7 +2,7 @@
 
 set -u
 
-if [ "$#" -ne 1 ]; then
+if [ "$#" -lt 1 ]; then
     echo "Missing version number e.g. 0.11.8"
 fi
 
@@ -12,10 +12,16 @@ if ! [ "${version:0:1}" = "v" ]; then
   version="v${version}"
 fi
 
-git checkout -b "$version" || exit 1
+if [ "$#" -ge 2 ]; then
+  full_name="${version}-$2"
+else
+  full_name="$version"
+fi
+
+git checkout -b "$full_name" || exit 1
 echo "$version" > pixelfed_ref.txt || exit 1
 git add pixelfed_ref.txt || exit 1
-git commit -m "$version" || exit 1
-git tag "$version" || exit 1
-git push origin "refs/tags/$version" || exit 1
+git commit -m "$full_name" || exit 1
+git tag "$full_name" || exit 1
+git push origin "refs/tags/$full_name" || exit 1
 git checkout main || exit 1
