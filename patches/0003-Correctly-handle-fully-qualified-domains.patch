@@ -1,0 +1,46 @@
+From c1de580845e213d201dc76a266067bb6d25f892f Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sat, 26 Aug 2023 20:13:49 -0700
+Subject: [PATCH] Correctly handle visiting the website with a fully qualified
+ username
+
+---
+ app/Http/Controllers/SiteController.php | 4 ++++
+ app/Services/AccountService.php         | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/app/Http/Controllers/SiteController.php b/app/Http/Controllers/SiteController.php
+index 379b2450..20526475 100644
+--- a/app/Http/Controllers/SiteController.php
++++ b/app/Http/Controllers/SiteController.php
+@@ -142,6 +142,10 @@ class SiteController extends Controller
+ 
+ 	public function legacyWebfingerRedirect(Request $request, $username, $domain)
+ 	{
++		if($domain == config('pixelfed.domain.app')) {
++			# If the user visits domain/@user@domain, treat it the same as visiting domain/@user
++			return SiteController::legacyProfileRedirect($request, $username);
++		}
+ 		$un = '@'.$username.'@'.$domain;
+ 		$profile = Profile::whereUsername($un)
+ 			->firstOrFail();
+diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
+index ea64855c..724f9062 100644
+--- a/app/Services/AccountService.php
++++ b/app/Services/AccountService.php
+@@ -171,6 +171,12 @@ class AccountService
+ 			if($s->contains('@') && !$s->startsWith('@')) {
+ 				$username = "@{$username}";
+ 			}
++			if(preg_match('/^@([^@]+)@'.preg_quote(config('pixelfed.domain.app')).'$/i', $username, $matches)) {
++				# The username is the fully qualified @user@example.com and the pixelfed site is example.com
++				# Normalize this username to just user
++				$username = $matches[1];
++			}
++
+ 			$profile = DB::table('profiles')
+ 				->whereUsername($username)
+ 				->first();
+-- 
+2.42.0
+
