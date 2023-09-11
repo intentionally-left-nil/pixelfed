@@ -1,0 +1,71 @@
+From ae410f859f98c468377d6d69b5c4f45b614d79f9 Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sun, 10 Sep 2023 21:53:56 -0700
+Subject: [PATCH] Enable restricting invites to admins Currently, invites are
+ on, or off globally for all users. This commit creates a new
+ PF_USER_INVITES_ADMIN_ONLY environment variable If set, then only admins are
+ allowed to create invites
+
+---
+ app/Http/Controllers/UserInviteController.php      | 1 +
+ config/pixelfed.php                                | 1 +
+ resources/views/admin/diagnostics/home.blade.php   | 5 +++++
+ resources/views/settings/partial/sidebar.blade.php | 2 +-
+ 4 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/app/Http/Controllers/UserInviteController.php b/app/Http/Controllers/UserInviteController.php
+index 9a827282..24b767ec 100644
+--- a/app/Http/Controllers/UserInviteController.php
++++ b/app/Http/Controllers/UserInviteController.php
+@@ -13,6 +13,7 @@ class UserInviteController extends Controller
+ 	{
+ 		abort_if(!config('pixelfed.user_invites.enabled'), 404);
+ 		abort_unless(Auth::check(), 403);
++		abort_unless($request->user().is_admin === true || !config('pixelfed.user_invites.admin_only'), 403);
+ 		return view('settings.invites.create');
+ 	}
+ 
+diff --git a/config/pixelfed.php b/config/pixelfed.php
+index fcdb1a4b..0694fcc7 100644
+--- a/config/pixelfed.php
++++ b/config/pixelfed.php
+@@ -233,6 +233,7 @@ return [
+ 	*/
+ 	'user_invites' => [
+ 		'enabled' => env('PF_USER_INVITES', false),
++		'admin_only' => env('PF_USER_INVITES_ADMIN_ONLY', false),
+ 		'limit' => [
+ 			'total' => (int) env('PF_USER_INVITES_TOTAL_LIMIT', 0),
+ 			'daily' => (int) env('PF_USER_INVITES_DAILY_LIMIT', 0),
+diff --git a/resources/views/admin/diagnostics/home.blade.php b/resources/views/admin/diagnostics/home.blade.php
+index bf2b5d74..52516363 100644
+--- a/resources/views/admin/diagnostics/home.blade.php
++++ b/resources/views/admin/diagnostics/home.blade.php
+@@ -762,6 +762,11 @@
+ 		<td><strong>PF_USER_INVITES</strong></td>
+ 		<td><span>{{config_cache('pixelfed.user_invites.enabled') ? '✅ true' : '❌ false' }}</span></td>
+ 	</tr>
++	<tr>
++		<td><span class="badge badge-primary">PIXELFED</span></td>
++		<td><strong>PF_USER_INVITES_ADMIN_ONLY</strong></td>
++		<td><span>{{config_cache('pixelfed.user_invites.admin_only') ? '✅ true' : '❌ false' }}</span></td>
++	</tr>
+ 	<tr>
+ 		<td><span class="badge badge-primary">PIXELFED</span></td>
+ 		<td><strong>PF_USER_INVITES_TOTAL_LIMIT</strong></td>
+diff --git a/resources/views/settings/partial/sidebar.blade.php b/resources/views/settings/partial/sidebar.blade.php
+index b4acf8c9..81deedba 100644
+--- a/resources/views/settings/partial/sidebar.blade.php
++++ b/resources/views/settings/partial/sidebar.blade.php
+@@ -9,7 +9,7 @@
+ 			<li class="nav-item pl-3 {{request()->is('settings/email')?'active':''}}">
+ 				<a class="nav-link font-weight-light text-muted" href="{{route('settings.email')}}">Email</a>
+ 			</li>
+-			@if(config('pixelfed.user_invites.enabled'))
++			@if(config('pixelfed.user_invites.enabled') && !config('pixelfed.user_invites.admin_required') || (Auth::user() && Auth::user()->is_admin === true))
+ 			<li class="nav-item pl-3 {{request()->is('settings/invites*')?'active':''}}">
+ 				<a class="nav-link font-weight-light text-muted" href="{{route('settings.invites')}}">Invites</a>
+ 			</li>
+-- 
+2.42.0
+

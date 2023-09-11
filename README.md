@@ -44,6 +44,14 @@ RUN deluser www-data; delgroup www-data; adduser -D -H -u 1000 -s /bin/sh www-da
 RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
 ```
 
+## Handle fully-qualified domain names
+
+Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
+
+## Enable restricted admin invites
+
+This patch allows invites to be turned on for admin users only. That way you can only allow trusted users to add new members to your instance.
+
 # I don't want these patches/ I want to do it myself
 
 It's really easy to manage the images yourself
