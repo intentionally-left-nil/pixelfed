@@ -16,8 +16,9 @@ For each docker image, the following tags are available:
 | alpha    | yes          | Build of the pixelfed dev branch, updated daily |
 | 0.11.8   | no           | 0.11.8 release                                  |
 | 0.11.9   | no           | 0.11.9 release                                  |
-| 0.11.11   | no           | 0.11.11 release                                  |
-| latest   | yes          | Latest tagged release (e.g. 0.11.11)             |
+| 0.11.11  | no           | 0.11.11 release                                 |
+| 0.11.12  | no           | 0.11.12 release                                 |
+| latest   | yes          | Latest tagged release (e.g. 0.11.12)            |
 
 # Custom modifications
 
