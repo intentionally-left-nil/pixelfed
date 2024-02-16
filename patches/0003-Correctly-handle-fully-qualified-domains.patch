@@ -1,4 +1,4 @@
-From c1de580845e213d201dc76a266067bb6d25f892f Mon Sep 17 00:00:00 2001
+From c31e846363cf4f5e88a6d19fe264f28b171aaf94 Mon Sep 17 00:00:00 2001
 From: Anil Kulkarni <anil@terminal.space>
 Date: Sat, 26 Aug 2023 20:13:49 -0700
 Subject: [PATCH] Correctly handle visiting the website with a fully qualified
@@ -25,22 +25,22 @@ index 379b2450..20526475 100644
  		$profile = Profile::whereUsername($un)
  			->firstOrFail();
 diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
-index ea64855c..724f9062 100644
+index 5ffc1e9b..629dccba 100644
 --- a/app/Services/AccountService.php
 +++ b/app/Services/AccountService.php
-@@ -171,6 +171,12 @@ class AccountService
- 			if($s->contains('@') && !$s->startsWith('@')) {
- 				$username = "@{$username}";
- 			}
-+			if(preg_match('/^@([^@]+)@'.preg_quote(config('pixelfed.domain.app')).'$/i', $username, $matches)) {
-+				# The username is the fully qualified @user@example.com and the pixelfed site is example.com
-+				# Normalize this username to just user
-+				$username = $matches[1];
-+			}
-+
- 			$profile = DB::table('profiles')
- 				->whereUsername($username)
- 				->first();
+@@ -173,6 +173,12 @@ class AccountService
+             if($s->contains('@') && !$s->startsWith('@')) {
+                 $username = "@{$username}";
+             }
++            if(preg_match('/^@([^@]+)@'.preg_quote(config('pixelfed.domain.app')).'$/i', $username, $matches)) {
++                # The username is the fully qualified @user@example.com and the pixelfed site is example.com
++                # Normalize this username to just user
++                $username = $matches[1];
++            }
++            
+             $profile = DB::table('profiles')
+                 ->whereUsername($username)
+                 ->first();
 -- 
-2.42.0
+2.39.3 (Apple Git-145)
 
