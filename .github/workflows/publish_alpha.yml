@@ -51,7 +51,7 @@ jobs:
             TARGETOS=linux
             TARGETARCH=amd64
             PHP_VERSION=8.3
-            DOCKER_APP_DEBIAN_RELEASE=bookworm
+            PHP_DEBIAN_RELEASE=bookworm
             BUILD_FRONTEND=1
           target: fpm-runtime
           push: true
