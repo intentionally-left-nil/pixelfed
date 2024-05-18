@@ -2,7 +2,7 @@ name: Create and publish the alpha images
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "new-dockerfile"]
   schedule:
     - cron: "6 4 * * *" # Run daily at 04:06 never forgotten
 
@@ -37,44 +37,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push fpm image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: pixelfed
-          file: pixelfed/contrib/docker/Dockerfile.fpm
+          file: pixelfed/Dockerfile
+          build-args: |
+            TARGETOS=linux
+            TARGETARCH=amd64
+            PHP_VERSION=8.3
+            DOCKER_APP_DEBIAN_RELEASE=bookworm
+          target: fpm-runtime
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm:alpha
-
-  build-apache:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Checkout the corresponding pixelfed repository
-        uses: actions/checkout@v3
-        with:
-          repository: pixelfed/pixelfed
-          ref: dev
-          path: pixelfed
-
-      - name: Apply the patches, in order
-        run: cd pixelfed; for patch in "${{ github.workspace }}/patches"/*.patch; do git apply "$patch" ; done
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push apache image
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-        with:
-          context: pixelfed
-          file: pixelfed/contrib/docker/Dockerfile.apache
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-apache:alpha

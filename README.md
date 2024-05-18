@@ -18,38 +18,12 @@ For each docker image, the following tags are available:
 | 0.11.9   | no           | 0.11.9 release                                  |
 | 0.11.11  | no           | 0.11.11 release                                 |
 | 0.11.12  | no           | 0.11.12 release                                 |
+| 0.12.1   | no           | 0.12.1 release                                  |
 | latest   | yes          | Latest tagged release (e.g. 0.11.12)            |
 
 # Custom modifications
 
 These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
-
-## Fix the Dockerfile so it builds
-patch: [0000-fix-docker-base-image.patch](patches/0000-fix-docker-base-image.patch)
-
-The dockerfile in the repo no longer builds. This fixes the file to use the latest, working Debian upstream
-## Enable Postgres support
-
-patch: [0002-Add-postgres-and-sqllite-to-the-docker-images.patch](./patches/0002-Add-postgres-and-sqlite-to-the-docker-images.patch)
-
-This uncomments the dependencies in the docker image for postgres & sqlite support. Pixelfed itself supports all of these databases, but the client dependencies need to be installed in the image. Impact: extra disk space. You can still use mysql if you want
-
-## Fix www-data permissions
-
-patch: [0001-Change-www-data-to-be-uid-gid-1000.patch](./patches/0001-Change-www-data-to-be-uid-gid-1000.patch)
-
-This changes the user id and group id of the www-data user to be 1000. www-data will still be the owner of all the files from before, it's just that instead of user id 33 (or 34 or something similar), it will be 1000.
-This helps for two reasons: First, is that the user id is now always deterministic. So, if you have multiple docker images, you can be consistent on the user id #.
-
-Secondly, the UID of 1000 is picked because that is the default user id of the first user on a computer. This means that outside of docker, if you bind mount any files & try to edit them, your user should have the same ID as www-data inside the container. This will prevent the need to `chown -R www-data:www-data .` in the future.
-
-Note: If you have other docker images, you need to run something similar to make sure you're using UID 1000 for www-data. E.g for alpine linux it would be something similar to:
-
-```Dockerfile
-FROM nginx:mainline-alpine
-RUN deluser www-data; delgroup www-data; adduser -D -H -u 1000 -s /bin/sh www-data
-RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
-```
 
 ## Handle fully-qualified domain names
 

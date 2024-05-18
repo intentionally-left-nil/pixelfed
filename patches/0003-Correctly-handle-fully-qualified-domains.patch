@@ -1,34 +1,23 @@
-From c31e846363cf4f5e88a6d19fe264f28b171aaf94 Mon Sep 17 00:00:00 2001
-From: Anil Kulkarni <anil@terminal.space>
-Date: Sat, 26 Aug 2023 20:13:49 -0700
-Subject: [PATCH] Correctly handle visiting the website with a fully qualified
- username
-
----
- app/Http/Controllers/SiteController.php | 4 ++++
- app/Services/AccountService.php         | 6 ++++++
- 2 files changed, 10 insertions(+)
-
 diff --git a/app/Http/Controllers/SiteController.php b/app/Http/Controllers/SiteController.php
-index 379b2450..20526475 100644
+index 5e205d64..baf0b5f2 100644
 --- a/app/Http/Controllers/SiteController.php
 +++ b/app/Http/Controllers/SiteController.php
-@@ -142,6 +142,10 @@ class SiteController extends Controller
+@@ -154,6 +154,10 @@ class SiteController extends Controller
  
- 	public function legacyWebfingerRedirect(Request $request, $username, $domain)
- 	{
-+		if($domain == config('pixelfed.domain.app')) {
-+			# If the user visits domain/@user@domain, treat it the same as visiting domain/@user
-+			return SiteController::legacyProfileRedirect($request, $username);
-+		}
- 		$un = '@'.$username.'@'.$domain;
- 		$profile = Profile::whereUsername($un)
- 			->firstOrFail();
+     public function legacyWebfingerRedirect(Request $request, $username, $domain)
+     {
++        if($domain == config('pixelfed.domain.app')) {
++            # If the user visits domain/@user@domain, treat it the same as visiting domain/@user
++            return SiteController::legacyProfileRedirect($request, $username);
++        }
+         $un = '@'.$username.'@'.$domain;
+         $profile = Profile::whereUsername($un)
+             ->firstOrFail();
 diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
-index 5ffc1e9b..629dccba 100644
+index 5ffc1e9b..14667286 100644
 --- a/app/Services/AccountService.php
 +++ b/app/Services/AccountService.php
-@@ -173,6 +173,12 @@ class AccountService
+@@ -173,6 +173,11 @@ class AccountService
              if($s->contains('@') && !$s->startsWith('@')) {
                  $username = "@{$username}";
              }
@@ -41,6 +30,3 @@ index 5ffc1e9b..629dccba 100644
              $profile = DB::table('profiles')
                  ->whereUsername($username)
                  ->first();
--- 
-2.39.3 (Apple Git-145)
-
