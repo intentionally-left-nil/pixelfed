@@ -46,10 +46,13 @@ jobs:
           context: pixelfed
           file: pixelfed/Dockerfile
           build-args: |
+            RUNTIME_GID=1000
+            RUNTIME_UID=1000
             TARGETOS=linux
             TARGETARCH=amd64
             PHP_VERSION=8.3
             DOCKER_APP_DEBIAN_RELEASE=bookworm
+            BUILD_FRONTEND=1
           target: fpm-runtime
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm:alpha
