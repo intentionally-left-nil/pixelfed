@@ -26,7 +26,6 @@ index 5ffc1e9b..14667286 100644
 +                # Normalize this username to just user
 +                $username = $matches[1];
 +            }
-+            
              $profile = DB::table('profiles')
                  ->whereUsername($username)
                  ->first();
