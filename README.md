@@ -46,7 +46,7 @@ The docker container can't handle multiline variables. Fixing this here until it
 
 ## Fix ENTRYPOINT_SKIP_SCRIPTS
 
-patch: [0003-fix-entrypoint-skip-scripts](./patches/0003-fix-entrypoint-skip-scripts)
+patch: [0003-fix-entrypoint-skip-scripts.patch](./patches/0003-fix-entrypoint-skip-scripts.patch)
 
 The environment variable doesn't actually work. Fixing this until it's merged [upstream](https://github.com/pixelfed/pixelfed/pull/5097)
 
