@@ -5,9 +5,6 @@ This repository contains builds of [pixelfed](https://github.com/pixelfed/pixelf
 The following variants are available:
 
 - ghcr.io/intentionally-left-nil/pixelfed-fpm
-- ghcr.io/intentionally-left-nil/pixelfed-apache
-
-corresponding to the [php-fpm](https://github.com/pixelfed/pixelfed/blob/dev/contrib/docker/Dockerfile.fpm) and [apache](https://github.com/pixelfed/pixelfed/blob/dev/contrib/docker/Dockerfile.apache) builds of pixelfed.
 
 For each docker image, the following tags are available:
 
@@ -18,21 +15,12 @@ For each docker image, the following tags are available:
 | 0.11.9   | no           | 0.11.9 release                                  |
 | 0.11.11  | no           | 0.11.11 release                                 |
 | 0.11.12  | no           | 0.11.12 release                                 |
+| 0.12.1   | no           | 0.12.1 release                                  |
 | latest   | yes          | Latest tagged release (e.g. 0.11.12)            |
 
 # Custom modifications
 
 These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
-
-## Fix the Dockerfile so it builds
-patch: [0000-fix-docker-base-image.patch](patches/0000-fix-docker-base-image.patch)
-
-The dockerfile in the repo no longer builds. This fixes the file to use the latest, working Debian upstream
-## Enable Postgres support
-
-patch: [0002-Add-postgres-and-sqllite-to-the-docker-images.patch](./patches/0002-Add-postgres-and-sqlite-to-the-docker-images.patch)
-
-This uncomments the dependencies in the docker image for postgres & sqlite support. Pixelfed itself supports all of these databases, but the client dependencies need to be installed in the image. Impact: extra disk space. You can still use mysql if you want
 
 ## Fix www-data permissions
 
@@ -52,6 +40,8 @@ RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
 ```
 
 ## Handle fully-qualified domain names
+
+patch: [0003-Correctly-handle-fully-qualified-domains.patch](./patches/0003-Correctly-handle-fully-qualified-domains.patch)
 
 Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
 
