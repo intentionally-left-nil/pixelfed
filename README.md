@@ -41,7 +41,7 @@ RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
 
 ## Handle fully-qualified domain names
 
-patch: [0003-Correctly-handle-fully-qualified-domains.patch](./patches/0003-Correctly-handle-fully-qualified-domains.patch)
+patch: [0020-Correctly-handle-fully-qualified-domains.patch](./patches/0020-Correctly-handle-fully-qualified-domains.patch)
 
 Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
 
