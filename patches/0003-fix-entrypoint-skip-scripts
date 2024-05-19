@@ -1,0 +1,26 @@
+diff --git a/docker/shared/root/docker/entrypoint.d/01-permissions.sh b/docker/shared/root/docker/entrypoint.d/01-permissions.sh
+index efff5811..dc9dc759 100755
+--- a/docker/shared/root/docker/entrypoint.d/01-permissions.sh
++++ b/docker/shared/root/docker/entrypoint.d/01-permissions.sh
+@@ -17,7 +17,7 @@ run-as-current-user chown --verbose --recursive "${RUNTIME_UID}:${RUNTIME_GID}"
+ : "${DOCKER_APP_ENSURE_OWNERSHIP_PATHS:=""}"
+ 
+ declare -a ensure_ownership_paths=()
+-IFS=' ' read -ar ensure_ownership_paths <<<"${DOCKER_APP_ENSURE_OWNERSHIP_PATHS}"
++IFS=' ' read -r -a ensure_ownership_paths <<<"${DOCKER_APP_ENSURE_OWNERSHIP_PATHS}"
+ 
+ if [[ ${#ensure_ownership_paths[@]} == 0 ]]; then
+     log-info "No paths has been configured for ownership fixes via [\$DOCKER_APP_ENSURE_OWNERSHIP_PATHS]."
+diff --git a/docker/shared/root/docker/entrypoint.sh b/docker/shared/root/docker/entrypoint.sh
+index 73f6a4f3..055cf25d 100755
+--- a/docker/shared/root/docker/entrypoint.sh
++++ b/docker/shared/root/docker/entrypoint.sh
+@@ -28,7 +28,7 @@ entrypoint-set-script-name "entrypoint.sh"
+ # Convert ENTRYPOINT_SKIP_SCRIPTS into a native bash array for easier lookup
+ declare -a skip_scripts
+ # shellcheck disable=SC2034
+-IFS=' ' read -ar skip_scripts <<< "$ENTRYPOINT_SKIP_SCRIPTS"
++IFS=' ' read -r -a skip_scripts <<< "$ENTRYPOINT_SKIP_SCRIPTS"
+ 
+ # Ensure the entrypoint root folder exists
+ mkdir -p "${ENTRYPOINT_D_ROOT}"

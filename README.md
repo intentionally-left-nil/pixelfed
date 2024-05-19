@@ -39,6 +39,17 @@ RUN deluser www-data; delgroup www-data; adduser -D -H -u 1000 -s /bin/sh www-da
 RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
 ```
 
+## Fix Multiline environment variable handling
+
+patch: [0002-fix-multiline-source.patch](./patches/0002-fix-multiline-source.patch)
+The docker container can't handle multiline variables. Fixing this here until it's merged [upstream](https://github.com/pixelfed/pixelfed/pull/5099)
+
+## Fix ENTRYPOINT_SKIP_SCRIPTS
+
+patch: [0003-fix-entrypoint-skip-scripts](./patches/0003-fix-entrypoint-skip-scripts)
+
+The environment variable doesn't actually work. Fixing this until it's merged [upstream](https://github.com/pixelfed/pixelfed/pull/5097)
+
 ## Handle fully-qualified domain names
 
 patch: [0020-Correctly-handle-fully-qualified-domains.patch](./patches/0020-Correctly-handle-fully-qualified-domains.patch)
