@@ -35,7 +35,7 @@ jobs:
         run: cd pixelfed; git rev-parse HEAD
 
       - name: Apply the patches, in order
-        run: cd pixelfed; for patch in "${{ github.workspace }}/patches"/*.patch; do git apply "$patch" ; done
+        run: cd pixelfed; for patch in "${{ github.workspace }}/patches"/*.patch; do echo "applying $patch"; git apply "$patch" ; done
 
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
