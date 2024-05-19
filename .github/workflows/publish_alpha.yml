@@ -2,7 +2,7 @@ name: Create and publish the alpha images
 
 on:
   push:
-    branches: ["main", "new-dockerfile"]
+    branches: ["main"]
   schedule:
     - cron: "6 4 * * *" # Run daily at 04:06 never forgotten
 
