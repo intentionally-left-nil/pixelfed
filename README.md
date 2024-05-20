@@ -16,7 +16,7 @@ For each docker image, the following tags are available:
 | 0.11.11  | no           | 0.11.11 release                                 |
 | 0.11.12  | no           | 0.11.12 release                                 |
 | 0.12.1   | no           | 0.12.1 release                                  |
-| latest   | yes          | Latest tagged release (e.g. 0.11.12)            |
+| latest   | yes          | Latest tagged release (e.g. 0.12.1)             |
 
 # Custom modifications
 
