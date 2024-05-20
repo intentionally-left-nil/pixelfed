@@ -70,6 +70,7 @@ jobs:
             PHP_BASE_TYPE=fpm
             PHP_DEBIAN_RELEASE=bookworm
             BUILD_FRONTEND=1
+            APT_PACKAGES_EXTRA=vim
           target: fpm-runtime
           push: true
           tags: ${{ steps.fpm-meta.outputs.tags }}

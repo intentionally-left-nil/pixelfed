@@ -53,6 +53,7 @@ jobs:
             PHP_VERSION=8.3
             PHP_BASE_TYPE=fpm
             PHP_DEBIAN_RELEASE=bookworm
+            APT_PACKAGES_EXTRA=vim
             BUILD_FRONTEND=1
           target: fpm-runtime
           push: true
