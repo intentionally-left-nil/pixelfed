@@ -1,24 +1,9 @@
-diff --git a/app/Http/Controllers/SiteController.php b/app/Http/Controllers/SiteController.php
-index 5e205d64..baf0b5f2 100644
---- a/app/Http/Controllers/SiteController.php
-+++ b/app/Http/Controllers/SiteController.php
-@@ -154,6 +154,10 @@ class SiteController extends Controller
- 
-     public function legacyWebfingerRedirect(Request $request, $username, $domain)
-     {
-+        if($domain == config('pixelfed.domain.app')) {
-+            # If the user visits domain/@user@domain, treat it the same as visiting domain/@user
-+            return SiteController::legacyProfileRedirect($request, $username);
-+        }
-         $un = '@'.$username.'@'.$domain;
-         $profile = Profile::whereUsername($un)
-             ->firstOrFail();
 diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
-index 5ffc1e9b..14667286 100644
+index c2222603..ea22b69f 100644
 --- a/app/Services/AccountService.php
 +++ b/app/Services/AccountService.php
-@@ -173,6 +173,11 @@ class AccountService
-             if($s->contains('@') && !$s->startsWith('@')) {
+@@ -223,6 +223,12 @@ class AccountService
+             if ($s->contains('@') && ! $s->startsWith('@')) {
                  $username = "@{$username}";
              }
 +            if(preg_match('/^@([^@]+)@'.preg_quote(config('pixelfed.domain.app')).'$/i', $username, $matches)) {
@@ -26,6 +11,7 @@ index 5ffc1e9b..14667286 100644
 +                # Normalize this username to just user
 +                $username = $matches[1];
 +            }
++
              $profile = DB::table('profiles')
                  ->whereUsername($username)
                  ->first();
