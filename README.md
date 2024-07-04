@@ -16,39 +16,12 @@ For each docker image, the following tags are available:
 | 0.11.11  | no           | 0.11.11 release                                 |
 | 0.11.12  | no           | 0.11.12 release                                 |
 | 0.12.1   | no           | 0.12.1 release                                  |
+| 0.12.3   | no           | 0.12.3 release                                  |
 | latest   | yes          | Latest tagged release (e.g. 0.12.1)             |
 
 # Custom modifications
 
 These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
-
-## Fix www-data permissions
-
-patch: [0001-Change-www-data-to-be-uid-gid-1000.patch](./patches/0001-Change-www-data-to-be-uid-gid-1000.patch)
-
-This changes the user id and group id of the www-data user to be 1000. www-data will still be the owner of all the files from before, it's just that instead of user id 33 (or 34 or something similar), it will be 1000.
-This helps for two reasons: First, is that the user id is now always deterministic. So, if you have multiple docker images, you can be consistent on the user id #.
-
-Secondly, the UID of 1000 is picked because that is the default user id of the first user on a computer. This means that outside of docker, if you bind mount any files & try to edit them, your user should have the same ID as www-data inside the container. This will prevent the need to `chown -R www-data:www-data .` in the future.
-
-Note: If you have other docker images, you need to run something similar to make sure you're using UID 1000 for www-data. E.g for alpine linux it would be something similar to:
-
-```Dockerfile
-FROM nginx:mainline-alpine
-RUN deluser www-data; delgroup www-data; adduser -D -H -u 1000 -s /bin/sh www-data
-RUN sed -i -e 's/user\s\+nginx;/user www-data;/' /etc/nginx/nginx.conf
-```
-
-## Fix Multiline environment variable handling
-
-patch: [0002-fix-multiline-source.patch](./patches/0002-fix-multiline-source.patch)
-The docker container can't handle multiline variables. Fixing this here until it's merged [upstream](https://github.com/pixelfed/pixelfed/pull/5099)
-
-## Fix ENTRYPOINT_SKIP_SCRIPTS
-
-patch: [0003-fix-entrypoint-skip-scripts.patch](./patches/0003-fix-entrypoint-skip-scripts.patch)
-
-The environment variable doesn't actually work. Fixing this until it's merged [upstream](https://github.com/pixelfed/pixelfed/pull/5097)
 
 ## Handle fully-qualified domain names
 
