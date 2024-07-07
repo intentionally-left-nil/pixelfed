@@ -23,8 +23,14 @@ For each docker image, the following tags are available:
 
 These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
 
-## Remove composer.lock
+## Fix composer dependencies
 patch: [0001-fix-composer-dependencies.patch](./patches/0001-fix-composer-dependencies.patch)
+Upstream PR here: https://github.com/pixelfed/pixelfed/pull/5211
+
+This fixes how composer.install runs
+
+## Remove composer.lock
+patch: [0002-remove-composer-lock.patch](./patches/0002-remove-composer-lock.patch)
 Building the 0.12.3 version breaks because some depednency isn't updated properly. This fixes the issue
 by ignoring the composer.lock file and just using composer.json (which uses the most updated version allowed by composer.json instead of the .lock)
 
