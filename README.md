@@ -8,31 +8,39 @@ The following variants are available:
 
 For each docker image, the following tags are available:
 
-| Tag Name | Auto-updates | Description                                     |
-| -------- | ------------ | ----------------------------------------------- |
-| alpha    | yes          | Build of the pixelfed dev branch, updated daily |
-| 0.11.8   | no           | 0.11.8 release                                  |
-| 0.11.9   | no           | 0.11.9 release                                  |
-| 0.11.11  | no           | 0.11.11 release                                 |
-| 0.11.12  | no           | 0.11.12 release                                 |
-| 0.12.1   | no           | 0.12.1 release                                  |
-| 0.12.3   | no           | 0.12.3 release                                  |
-| latest   | yes          | Latest tagged release (e.g. 0.12.1)             |
+| Tag Name     | Auto-updates | Description                                     |
+| ------------ | ------------ | ----------------------------------------------- |
+| alpha        | yes          | Build of the pixelfed dev branch, updated daily |
+| 0.11.8       | no           | 0.11.8 release                                  |
+| 0.11.9       | no           | 0.11.9 release                                  |
+| 0.11.11      | no           | 0.11.11 release                                 |
+| 0.11.12      | no           | 0.11.12 release                                 |
+| 0.12.1       | no           | 0.12.1 release                                  |
+| 0.12.3       | no           | 0.12.3 release                                  |
+| 0.12.3-oauth | no           | 0.12.3 release, with the 0010 oauth patch       |
+| latest       | yes          | Latest tagged release (e.g. 0.12.1)             |
 
 # Custom modifications
 
 These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
 
 ## Fix composer dependencies
+
 patch: [0001-fix-composer-dependencies.patch](./patches/0001-fix-composer-dependencies.patch)
 Upstream PR here: https://github.com/pixelfed/pixelfed/pull/5211
 
 This fixes how composer.install runs
 
 ## Remove composer.lock
+
 patch: [0002-remove-composer-lock.patch](./patches/0002-remove-composer-lock.patch)
 Building the 0.12.3 version breaks because some depednency isn't updated properly. This fixes the issue
 by ignoring the composer.lock file and just using composer.json (which uses the most updated version allowed by composer.json instead of the .lock)
+
+## Handle OAuth set by environment variables
+
+patch: [0010-fix-oauth-logic.patch](./patches/0010-fix-oauth-logic.patch)
+This allows users to set the PASSPORT_PUBLIC_KEY and PASSPORT_PRIVATE_KEY environment variables as alternatives to properly enabling OAuth. Without this patch, OAuth actually works properly, but things like the directory listing code don't properly understand that OAuth is working correctly
 
 ## Handle fully-qualified domain names
 
