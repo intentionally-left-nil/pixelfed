@@ -1,0 +1,56 @@
+From 64bad4ee4d6880bc54571d56bc23b4962d37d592 Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sun, 12 Jan 2025 13:29:13 -0800
+Subject: [PATCH] Add a push notification when a user is mentioned in a comment
+
+---
+ app/Jobs/MentionPipeline/MentionPipeline.php | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/app/Jobs/MentionPipeline/MentionPipeline.php b/app/Jobs/MentionPipeline/MentionPipeline.php
+index cec42f09..7b8c2216 100644
+--- a/app/Jobs/MentionPipeline/MentionPipeline.php
++++ b/app/Jobs/MentionPipeline/MentionPipeline.php
+@@ -5,11 +5,15 @@ namespace App\Jobs\MentionPipeline;
+ use App\Mention;
+ use App\Notification;
+ use App\Status;
++use App\User;
+ use Illuminate\Bus\Queueable;
+ use Illuminate\Contracts\Queue\ShouldQueue;
+ use Illuminate\Foundation\Bus\Dispatchable;
+ use Illuminate\Queue\InteractsWithQueue;
+ use Illuminate\Queue\SerializesModels;
++use App\Jobs\PushNotificationPipeline\MentionPushNotifyPipeline;
++use App\Services\NotificationAppGatewayService;
++use App\Services\PushNotificationService;
+ use App\Services\StatusService;
+ 
+ class MentionPipeline implements ShouldQueue
+@@ -57,7 +61,7 @@ class MentionPipeline implements ShouldQueue
+                   ->count();
+ 
+         if ($actor->id === $target || $exists !== 0) {
+-            return true;
++            return;
+         }
+ 
+         Notification::firstOrCreate(
+@@ -71,5 +75,14 @@ class MentionPipeline implements ShouldQueue
+         );
+ 
+         StatusService::del($status->id);
++
++        if (NotificationAppGatewayService::enabled()) {
++            if (PushNotificationService::check('mention', $target)) {
++                $user = User::whereProfileId($target)->first();
++                if ($user && $user->expo_token && $user->notify_enabled) {
++                    MentionPushNotifyPipeline::dispatch($user->expo_token, $actor->username)->onQueue('pushnotify');
++                }
++            }
++        }
+     }
+ }
+-- 
+2.48.0
+
