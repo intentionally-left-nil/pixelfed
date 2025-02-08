@@ -1,0 +1,173 @@
+From 14cc576d0bd4b80bc075ce2d81c90ab73f8296ca Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Thu, 13 Apr 2023 01:44:15 -0700
+Subject: [PATCH 1/2] Ensure the cloud url is used when publishing a status to
+ activitypub Posting is done in two steps - first the media is uploaded and
+ that begins a processing pipeline. When the media is finally processed, the
+ media pipeline sets the cdn_url to the final image (in the cloud if
+ configured). At any time, the user can click post. This begins a separate
+ NewStatusPipeline to deliver the status over ActivityPub. This causes a race.
+ If the NewStatusPipeline runs before the media finishes processing, then the
+ status is delivered with the un-processed (and un-optimized images). If
+ pixelfed is set to use cloud storage, then the ActivityPub message also
+ incorrectly uses the local media.
+
+This commit fixes the race condition by waiting for all the media to be processed before sending the message over ActivityPub.
+A new publish_delayed column is set per-post, indicating whether the
+status should be delayed until all media is processed.
+
+Then, the NewStatusPipeline is called twice per post -
+When the media finishes processing and when the status is posted.
+
+Both times, the pipeline will check to see if it's valid to post
+If so, the pipeline will try to set publish_delayed to false
+and only if it is the first time doing so, will it publish the post
+---
+ app/Jobs/StatusPipeline/NewStatusPipeline.php | 18 ++++++++++++++++++
+ app/Services/MediaStorageService.php          | 18 ++++++++++++++++++
+ 2 files changed, 36 insertions(+)
+
+diff --git a/app/Jobs/StatusPipeline/NewStatusPipeline.php b/app/Jobs/StatusPipeline/NewStatusPipeline.php
+index 8ccb2926..4896aaf8 100644
+--- a/app/Jobs/StatusPipeline/NewStatusPipeline.php
++++ b/app/Jobs/StatusPipeline/NewStatusPipeline.php
+@@ -2,6 +2,7 @@
+ 
+ namespace App\Jobs\StatusPipeline;
+ 
++use App\Media;
+ use App\Status;
+ use Cache;
+ use Illuminate\Bus\Queueable;
+@@ -44,6 +45,23 @@ class NewStatusPipeline implements ShouldQueue
+      */
+     public function handle()
+     {
++        if (!Status::where('id', $this->status->id)->exists()) {
++            // The status has already been deleted by the time the job is running
++            // Don't publish the status, and just no-op
++            return;
++        }
++        if (config_cache('pixelfed.cloud_storage') && !config('pixelfed.media_fast_process')) {
++            $still_processing = Media::whereStatusId($this->status->id)
++                ->whereNull('cdn_url')
++                ->exists();
++            if ($still_processing) {
++                // The media items in the status are still being processed.
++                // We can't publish the status to ActivityPub because the final remote URL is not
++                // yet known. Instead, do nothing here. The media pipeline will re-call the NewStatusPipeline
++                // once all media items are finished processing
++                return;
++            }
++        }
+         StatusEntityLexer::dispatch($this->status);
+     }
+ }
+diff --git a/app/Services/MediaStorageService.php b/app/Services/MediaStorageService.php
+index d4751e10..79bcbef5 100644
+--- a/app/Services/MediaStorageService.php
++++ b/app/Services/MediaStorageService.php
+@@ -4,7 +4,9 @@ namespace App\Services;
+ 
+ use App\Jobs\AvatarPipeline\AvatarStorageCleanup;
+ use App\Jobs\MediaPipeline\MediaDeletePipeline;
++use App\Jobs\StatusPipeline\NewStatusPipeline;
+ use App\Media;
++use App\Status;
+ use App\Util\ActivityPub\Helpers;
+ use GuzzleHttp\Client;
+ use GuzzleHttp\Exception\RequestException;
+@@ -80,6 +82,22 @@ class MediaStorageService
+         } else {
+             (new self)->localToCloud($media);
+         }
++
++        if ($media->status_id && config_cache('pixelfed.cloud_storage') && !config('pixelfed.media_fast_process')) {
++            $still_processing = Media::whereStatusId($media->status_id)
++                ->whereNull('cdn_url')
++                ->exists();
++            if (!$still_processing) {
++                // In this configuration, publishing the status is delayed until the media uploads
++                // Since all media have been processed, we can kick the NewStatusPipeline job
++                // N.B. there's a timing condition with multiple MediaStorageService workers matching this if statement
++                // However, it's acceptable to publish the same status multiple times to ActivityPub
++                $status = Status::where('id', $media->status_id)->first(); // This could be null if the status was deleted
++                if ($status) {
++                    NewStatusPipeline::dispatch($status);
++                }
++            }
++        }
+     }
+ 
+     protected function localToCloud($media)
+-- 
+2.48.1
+
+
+From 2fe58f32ae652b9cfda03a4ab072a29a9940ad6b Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sat, 8 Feb 2025 13:24:55 -0800
+Subject: [PATCH 2/2] Add logs
+
+---
+ app/Jobs/StatusPipeline/NewStatusPipeline.php | 3 +++
+ app/Services/MediaStorageService.php          | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/app/Jobs/StatusPipeline/NewStatusPipeline.php b/app/Jobs/StatusPipeline/NewStatusPipeline.php
+index 4896aaf8..96269440 100644
+--- a/app/Jobs/StatusPipeline/NewStatusPipeline.php
++++ b/app/Jobs/StatusPipeline/NewStatusPipeline.php
+@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
+ use Illuminate\Queue\InteractsWithQueue;
+ use Illuminate\Queue\SerializesModels;
+ use Illuminate\Support\Facades\Redis;
++use Log;
+ 
+ class NewStatusPipeline implements ShouldQueue
+ {
+@@ -54,11 +55,13 @@ class NewStatusPipeline implements ShouldQueue
+             $still_processing = Media::whereStatusId($this->status->id)
+                 ->whereNull('cdn_url')
+                 ->exists();
++            Log::info('cdn-fix: NewStatusPipeline::handle still_processing: ' . $still_processing . "\n");
+             if ($still_processing) {
+                 // The media items in the status are still being processed.
+                 // We can't publish the status to ActivityPub because the final remote URL is not
+                 // yet known. Instead, do nothing here. The media pipeline will re-call the NewStatusPipeline
+                 // once all media items are finished processing
++                Log::info('cdn-fix: NewStatusPipeline::handle returning early\n');
+                 return;
+             }
+         }
+diff --git a/app/Services/MediaStorageService.php b/app/Services/MediaStorageService.php
+index 79bcbef5..ed0a021c 100644
+--- a/app/Services/MediaStorageService.php
++++ b/app/Services/MediaStorageService.php
+@@ -15,6 +15,7 @@ use Illuminate\Support\Arr;
+ use Illuminate\Support\Facades\Cache;
+ use Illuminate\Support\Facades\Storage;
+ use Illuminate\Support\Str;
++use Log;
+ 
+ class MediaStorageService
+ {
+@@ -87,6 +88,7 @@ class MediaStorageService
+             $still_processing = Media::whereStatusId($media->status_id)
+                 ->whereNull('cdn_url')
+                 ->exists();
++            Log::info('cdn-fix: MediaStorageService::cloudStore still_processing: ' . $still_processing . "\n");
+             if (!$still_processing) {
+                 // In this configuration, publishing the status is delayed until the media uploads
+                 // Since all media have been processed, we can kick the NewStatusPipeline job
+@@ -94,6 +96,7 @@ class MediaStorageService
+                 // However, it's acceptable to publish the same status multiple times to ActivityPub
+                 $status = Status::where('id', $media->status_id)->first(); // This could be null if the status was deleted
+                 if ($status) {
++                    Log::info('cdn-fix: MediaStorageService::cloudStore dispatching NewStatusPipeline\n');
+                     NewStatusPipeline::dispatch($status);
+                 }
+             }
+-- 
+2.48.1
+
