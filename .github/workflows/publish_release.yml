@@ -66,9 +66,10 @@ jobs:
             RUNTIME_UID=1000
             TARGETOS=linux
             TARGETARCH=amd64
-            PHP_VERSION=8.3
+            PHP_VERSION=8.4
             PHP_BASE_TYPE=fpm
             PHP_DEBIAN_RELEASE=bookworm
+            PHP_PECL_EXTENSIONS=redis https://github.com/Imagick/imagick/archive/refs/tags/3.8.0RC2.tar.gz
             BUILD_FRONTEND=1
             APT_PACKAGES_EXTRA=vim
           target: fpm-runtime
