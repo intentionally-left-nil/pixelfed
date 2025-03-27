@@ -21,6 +21,7 @@ For each docker image, the following tags are available:
 | 0.12.4                   | no           | 0.12.4 release                                                 |
 | 0.12.4-fix-notifications | no           | 0.12.4 release, with the 0021 and 22 push notification patches |
 | 0.12.5                   | no           | 0.12.5 release                                                 |
+| 0.12.5-fix-post-stats    | no           | 0.12.5 release, with the 0021 fix post stats patch             |
 | latest                   | yes          | Latest tagged release (e.g. 0.12.1)                            |
 
 # Custom modifications
@@ -32,6 +33,12 @@ These builds of pixelfed contain changes to suit the author's personal needs. Yo
 patch: [0020-Correctly-handle-fully-qualified-domains.patch](./patches/0020-Correctly-handle-fully-qualified-domains.patch)
 
 Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
+
+## Fix server post stats
+
+patch: [0021-Fix-post-stats.patch](./patches/0021-Fix-post-stats.patch)
+The stats on the homepage are incorrect, because it includes posts from remote servers. This patch fixes the query to only include local posts.
+[Upstream PR](https://github.com/pixelfed/pixelfed/pull/5902)
 
 # I don't want these patches/ I want to do it myself
 

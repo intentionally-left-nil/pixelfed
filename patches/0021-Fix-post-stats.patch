@@ -1,0 +1,54 @@
+From 8db8258cabce274af3ce6c33045ff3f2ff2a3414 Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Wed, 26 Mar 2025 19:31:53 -0700
+Subject: [PATCH] Fix server post stats This fixes the homepage, showing how
+ many posts have been made by the server. The prior logic includes posts from
+ remote servers by an indirect check for if it's a local post. This commit
+ changes the query behavior to directly check for the local flag in the
+ statuses column, and additionally excludes shares
+
+---
+ .../Commands/InstanceUpdateTotalLocalPosts.php    | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/app/Console/Commands/InstanceUpdateTotalLocalPosts.php b/app/Console/Commands/InstanceUpdateTotalLocalPosts.php
+index d44236a5..f1befe7e 100644
+--- a/app/Console/Commands/InstanceUpdateTotalLocalPosts.php
++++ b/app/Console/Commands/InstanceUpdateTotalLocalPosts.php
+@@ -53,9 +53,8 @@ class InstanceUpdateTotalLocalPosts extends Command
+ 
+     protected function initCache()
+     {
+-        $count = DB::table('statuses')->whereNull(['url', 'deleted_at'])->count();
+         $res = [
+-            'count' => $count,
++            'count' => $this->getTotalLocalPosts(),
+         ];
+         Storage::put('total_local_posts.json', json_encode($res, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+         ConfigCacheService::put('instance.stats.total_local_posts', $res['count']);
+@@ -68,12 +67,20 @@ class InstanceUpdateTotalLocalPosts extends Command
+ 
+     protected function updateAndCache()
+     {
+-        $count = DB::table('statuses')->whereNull(['url', 'deleted_at'])->count();
+         $res = [
+-            'count' => $count,
++            'count' => $this->getTotalLocalPosts(),
+         ];
+         Storage::put('total_local_posts.json', json_encode($res, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+         ConfigCacheService::put('instance.stats.total_local_posts', $res['count']);
+ 
+     }
++
++    protected function getTotalLocalPosts()
++    {
++        return DB::table('statuses')
++            ->whereNull('deleted_at')
++            ->where('local', true)
++            ->whereNot('type', 'share') # Ignore boosts for the post count
++            ->count();
++    }
+ }
+-- 
+2.49.0
+
