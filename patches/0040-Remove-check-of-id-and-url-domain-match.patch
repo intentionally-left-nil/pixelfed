@@ -1,0 +1,72 @@
+From e3b7f1d7cd77aeef7ff337e91a18268e67a9e7ff Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sun, 11 May 2025 07:37:33 -0700
+Subject: [PATCH] For an ActivityStream object, such as a note, the code
+ currently validates the domain of the object id, matches the domain of the
+ object url. However, the current implementation of threads has objects where
+ the id is threads.net/ap/... and the url is www.threads.com/... The AS spec
+ does not guarantee any particular relationship between the id and url. The
+ only requirement is that the id is globally unique. Additionally, mastodon
+ also does not appear to require the domains to match
+
+---
+ app/Util/ActivityPub/Helpers.php | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
+
+diff --git a/app/Util/ActivityPub/Helpers.php b/app/Util/ActivityPub/Helpers.php
+index 7be32ede7..d3d635aeb 100644
+--- a/app/Util/ActivityPub/Helpers.php
++++ b/app/Util/ActivityPub/Helpers.php
+@@ -554,9 +554,7 @@ class Helpers
+         $idDomain = parse_url($id, PHP_URL_HOST);
+         $urlDomain = parse_url($url, PHP_URL_HOST);
+ 
+-        return $idDomain &&
+-               $urlDomain &&
+-               strtolower($idDomain) === strtolower($urlDomain);
++        return $idDomain && $urlDomain;
+     }
+ 
+     /**
+@@ -586,13 +584,12 @@ class Helpers
+      */
+     public static function storeStatus(string $url, Profile $profile, array $activity): Status
+     {
+-        $originalUrl = $url;
+         $id = self::getStatusId($activity, $url);
+         $url = self::getStatusUrl($activity, $id);
+ 
+         if ((! isset($activity['type']) ||
+              in_array($activity['type'], ['Create', 'Note'])) &&
+-            ! self::validateStatusDomains($originalUrl, $id, $url)) {
++            ! self::validateStatusDomains($id, $url)) {
+             throw new \Exception('Invalid status domains');
+         }
+ 
+@@ -647,20 +644,11 @@ class Helpers
+     }
+ 
+     /**
+-     * Validate status domain consistency
++     * Validate the status URL and ID are valid
+      */
+-    public static function validateStatusDomains(string $originalUrl, string $id, string $url): bool
++    public static function validateStatusDomains(string $id, string $url): bool
+     {
+-        if (! self::validateUrl($id) || ! self::validateUrl($url)) {
+-            return false;
+-        }
+-
+-        $originalDomain = parse_url($originalUrl, PHP_URL_HOST);
+-        $idDomain = parse_url($id, PHP_URL_HOST);
+-        $urlDomain = parse_url($url, PHP_URL_HOST);
+-
+-        return strtolower($originalDomain) === strtolower($idDomain) &&
+-               strtolower($originalDomain) === strtolower($urlDomain);
++        return self::validateUrl($id) && self::validateUrl($url);
+     }
+ 
+     /**
+-- 
+2.49.0
+

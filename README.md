@@ -23,6 +23,7 @@ For each docker image, the following tags are available:
 | 0.12.5                   | no           | 0.12.5 release                                                 |
 | 0.12.5-fix-post-stats    | no           | 0.12.5 release, with the 0021 fix post stats patch             |
 | 0.12.5-fix-s3-federation | no           | 0.12.5 release, with the 0021 stats and 0030-32 fix federation patches |
+| 0.12.5-fix-id-url-check  | no           | 0.12.5 release, with 21-40 patches, including removing the domain check for ActivityStream |
 | latest                   | yes          | Latest tagged release (e.g. 0.12.1)                            |
 
 # Custom modifications
@@ -46,6 +47,12 @@ The stats on the homepage are incorrect, because it includes posts from remote s
 patches: [0030](./patches/0030-Revert-Update-NewStatusPipeline-improve-fallback.patch), [0031](./patches/0031-Revert-Update-NewStatusPipeline-replaces-5706.patch), and [0032](./patches/0032-Ensure-the-cloud-url-is-used-when-publishing-a-statu.patch)
 
 When using S3 or other cloud storage providers, posts could be federated before media uploads completed, causing broken federation with incorrect media URLs. The first two patches revert an incorrect attempt to fix this issue, while the third patch provides the correct solution by ensuring media uploads complete before federation occurs.
+
+## Remove ActivityStream ID and URL Domain Match Check
+
+patch: [0040-Remove-check-of-id-and-url-domain-match.patch](./patches/0040-Remove-check-of-id-and-url-domain-match.patch)
+
+Removes validation that requires an ActivityStream object's ID domain to match its URL domain. This change improves compatibility with services like Threads where the ID domain (threads.net) differs from the URL domain (www.threads.com). This check is not required by the ActivityStream spec, which only mandates globally unique IDs.
 
 # I don't want these patches/ I want to do it myself
 
