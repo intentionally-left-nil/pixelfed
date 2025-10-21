@@ -1,5 +1,5 @@
 diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
-index c2222603..ea22b69f 100644
+index 3ce04d610..cb7c1148a 100644
 --- a/app/Services/AccountService.php
 +++ b/app/Services/AccountService.php
 @@ -223,6 +223,12 @@ class AccountService

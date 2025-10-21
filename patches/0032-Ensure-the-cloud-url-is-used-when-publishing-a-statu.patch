@@ -35,7 +35,7 @@ index 8ccb2926f..4896aaf89 100644
      }
  }
 diff --git a/app/Services/MediaStorageService.php b/app/Services/MediaStorageService.php
-index d4751e102..79bcbef55 100644
+index 05c0a460c..abbea5436 100644
 --- a/app/Services/MediaStorageService.php
 +++ b/app/Services/MediaStorageService.php
 @@ -4,7 +4,9 @@ namespace App\Services;
@@ -71,6 +71,3 @@ index d4751e102..79bcbef55 100644
      }
  
      protected function localToCloud($media)
--- 
-2.49.0
-

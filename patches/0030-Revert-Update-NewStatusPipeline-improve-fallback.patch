@@ -90,7 +90,7 @@ index 2c825cbc0..79a238836 100644
          }
      }
 diff --git a/app/Media.php b/app/Media.php
-index 51bc21152..9ecc7b17e 100644
+index ef3414e86..36c98c29a 100644
 --- a/app/Media.php
 +++ b/app/Media.php
 @@ -22,8 +22,7 @@ class Media extends Model
@@ -104,5 +104,5 @@ index 51bc21152..9ecc7b17e 100644
  
      public function status()
 -- 
-2.49.0
+2.51.1.dirty
 
