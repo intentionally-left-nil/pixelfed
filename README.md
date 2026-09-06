@@ -25,6 +25,7 @@ For each docker image, the following tags are available:
 | 0.12.5-fix-s3-federation | no           | 0.12.5 release, with the 0021 stats and 0030-32 fix federation patches |
 | 0.12.5-fix-id-url-check  | no           | 0.12.5 release, with 21-40 patches, including removing the domain check for ActivityStream |
 | 0.12.6                   | no           | 0.12.6 release                                                 |
+| 0.12.9                   | no           | 0.12.9 release                                                 |
 | latest                   | yes          | Latest tagged release (e.g. 0.12.6)                            |
 
 # Custom modifications
@@ -36,12 +37,6 @@ These builds of pixelfed contain changes to suit the author's personal needs. Yo
 patch: [0020-Correctly-handle-fully-qualified-domains.patch](./patches/0020-Correctly-handle-fully-qualified-domains.patch)
 
 Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
-
-## Fix S3/Cloud Storage Federation
-
-patches: [0030](./patches/0030-Revert-Update-NewStatusPipeline-improve-fallback.patch), [0031](./patches/0031-Revert-Update-NewStatusPipeline-replaces-5706.patch), and [0032](./patches/0032-Ensure-the-cloud-url-is-used-when-publishing-a-statu.patch)
-
-When using S3 or other cloud storage providers, posts could be federated before media uploads completed, causing broken federation with incorrect media URLs. The first two patches revert an incorrect attempt to fix this issue, while the third patch provides the correct solution by ensuring media uploads complete before federation occurs.
 
 # I don't want these patches/ I want to do it myself
 
