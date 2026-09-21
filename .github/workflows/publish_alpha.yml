@@ -45,5 +45,8 @@ jobs:
         with:
           context: pixelfed
           file: pixelfed/Dockerfile
+          build-args: |
+            RUNTIME_UID=1000
+            RUNTIME_GID=1000
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpha

@@ -1,0 +1,38 @@
+From fbd8874081f39bf44086c922929f144963d6fb25 Mon Sep 17 00:00:00 2001
+From: Anil Kulkarni <anil@terminal.space>
+Date: Sun, 20 Sep 2026 20:53:14 -0700
+Subject: [PATCH] Allow RUNTIME_UID and RUNTIME_GID build customize www-data
+
+The original 0.12.x docker images allowed customizing the user id and
+group id of the user
+
+To allow for smooth migrations to the 0.14.x series, allow this
+customization - defaulting to the usual 33 if unset
+---
+ Dockerfile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Dockerfile b/Dockerfile
+index 05e907014..8b9eeeab0 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -78,10 +78,16 @@ RUN ./configure \
+ # PHP base image — FrankenPHP (includes Caddy built-in)
+ FROM serversideup/php:8.5-frankenphp
+ 
++ARG RUNTIME_UID=33
++ARG RUNTIME_GID=33
++
+ WORKDIR /var/www/html
+ 
+ USER root
+ 
++RUN docker-php-serversideup-set-id www-data ${RUNTIME_UID}:${RUNTIME_GID} && \
++    docker-php-serversideup-set-file-permissions --owner ${RUNTIME_UID}:${RUNTIME_GID} --service frankenphp --dir /var/www/html
++
+ RUN apt-get update && apt-get install -y \
+     unzip \
+     zip \
+-- 
+2.55.0
+

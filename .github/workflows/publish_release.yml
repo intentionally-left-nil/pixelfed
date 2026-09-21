@@ -61,6 +61,9 @@ jobs:
         with:
           context: pixelfed
           file: pixelfed/Dockerfile
+          build-args: |
+            RUNTIME_UID=1000
+            RUNTIME_GID=1000
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
