@@ -1,9 +1,9 @@
 diff --git a/app/Services/AccountService.php b/app/Services/AccountService.php
-index 3ce04d610..cb7c1148a 100644
+index 6515084b9..6267eab50 100644
 --- a/app/Services/AccountService.php
 +++ b/app/Services/AccountService.php
-@@ -223,6 +223,12 @@ class AccountService
-             if ($s->contains('@') && ! $s->startsWith('@')) {
+@@ -226,6 +226,12 @@ class AccountService
+             if (Str::contains($username, '@') && ! Str::startsWith($username, '@')) {
                  $username = "@{$username}";
              }
 +            if(preg_match('/^@([^@]+)@'.preg_quote(config('pixelfed.domain.app')).'$/i', $username, $matches)) {

@@ -1,10 +1,13 @@
 # Pixelfed docker images
 
-This repository contains builds of [pixelfed](https://github.com/pixelfed/pixelfed) using the provided [Dockerfiles](https://github.com/pixelfed/pixelfed/tree/dev/contrib/docker) from that repository
+This repository contains builds of [pixelfed](https://github.com/pixelfed/pixelfed) using the [Dockerfile](https://github.com/pixelfed/pixelfed/blob/dev/Dockerfile) from that repository
+
+> [!IMPORTANT]
+> Pixelfed replaced its old multi-target Dockerfile (the `fpm-runtime` target, `PHP_*` build args, `contrib/docker` entrypoints) with a single image based on [serversideup/php:8.4-fpm-nginx](https://serversideup.net/open-source/docker-php/). The image now contains **both nginx and php-fpm**, serves HTTP on port **8080**, stores the app in **/var/www/html**, and runs as `www-data` (no `gosu`, no root entrypoint). Accordingly, these builds are now published as `ghcr.io/intentionally-left-nil/pixelfed` — the old `ghcr.io/intentionally-left-nil/pixelfed-fpm` image is retired (its last tag is 0.12.9).
 
 The following variants are available:
 
-- ghcr.io/intentionally-left-nil/pixelfed-fpm
+- ghcr.io/intentionally-left-nil/pixelfed
 
 For each docker image, the following tags are available:
 
@@ -25,8 +28,10 @@ For each docker image, the following tags are available:
 | 0.12.5-fix-s3-federation | no           | 0.12.5 release, with the 0021 stats and 0030-32 fix federation patches |
 | 0.12.5-fix-id-url-check  | no           | 0.12.5 release, with 21-40 patches, including removing the domain check for ActivityStream |
 | 0.12.6                   | no           | 0.12.6 release                                                 |
-| 0.12.9                   | no           | 0.12.9 release                                                 |
+| 0.14.1                   | no           | 0.14.1 with the new docker pattern                                                 |
 | latest                   | yes          | Latest tagged release (e.g. 0.12.6)                            |
+
+Tags up to and including `0.12.9` were published on the retired `ghcr.io/intentionally-left-nil/pixelfed-fpm` image. Newer releases are published on `ghcr.io/intentionally-left-nil/pixelfed`.
 
 # Custom modifications
 

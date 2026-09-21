@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-fpm:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,11 +44,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate docker metadata for pixelfed-fpm on the main branch
-        id: fpm-meta
+      - name: Generate docker metadata for the pixelfed image
+        id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -56,23 +56,11 @@ jobs:
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build and push fpm image
+      - name: Build and push image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: pixelfed
           file: pixelfed/Dockerfile
-          build-args: |
-            RUNTIME_GID=1000
-            RUNTIME_UID=1000
-            TARGETOS=linux
-            TARGETARCH=amd64
-            PHP_VERSION=8.4
-            PHP_BASE_TYPE=fpm
-            PHP_DEBIAN_RELEASE=bookworm
-            PHP_PECL_EXTENSIONS=redis https://github.com/Imagick/imagick/archive/refs/tags/3.8.0RC2.tar.gz
-            BUILD_FRONTEND=1
-            APT_PACKAGES_EXTRA=vim
-          target: fpm-runtime
           push: true
-          tags: ${{ steps.fpm-meta.outputs.tags }}
-          labels: ${{ steps.fpm-meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

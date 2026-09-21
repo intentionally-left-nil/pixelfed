@@ -1,3 +1,5 @@
+ref ?= $(shell cat pixelfed_ref.txt)
+
 .PHONY: test publish_release
 
 test:

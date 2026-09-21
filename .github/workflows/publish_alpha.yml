@@ -11,7 +11,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-fpm:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,22 +40,10 @@ jobs:
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push fpm image
+      - name: Build and push image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: pixelfed
           file: pixelfed/Dockerfile
-          build-args: |
-            RUNTIME_GID=1000
-            RUNTIME_UID=1000
-            TARGETOS=linux
-            TARGETARCH=amd64
-            PHP_VERSION=8.4
-            PHP_BASE_TYPE=fpm
-            PHP_DEBIAN_RELEASE=bookworm
-            PHP_PECL_EXTENSIONS=redis https://github.com/Imagick/imagick/archive/refs/tags/3.8.0RC2.tar.gz
-            APT_PACKAGES_EXTRA=vim
-            BUILD_FRONTEND=1
-          target: fpm-runtime
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm:alpha
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpha
