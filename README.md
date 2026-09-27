@@ -29,7 +29,8 @@ For each docker image, the following tags are available:
 | 0.12.5-fix-id-url-check  | no           | 0.12.5 release, with 21-40 patches, including removing the domain check for ActivityStream |
 | 0.12.6                   | no           | 0.12.6 release                                                 |
 | 0.14.1                   | no           | 0.14.1 with the new docker pattern                                                 |
-| latest                   | yes          | Latest tagged release (e.g. 0.12.6)                            |
+| 0.14.3                   | no           | 0.14.3 pattern                                                 |
+| latest                   | yes          | Latest tagged release (e.g. 0.14.3)                            |
 
 Tags up to and including `0.12.9` were published on the retired `ghcr.io/intentionally-left-nil/pixelfed-fpm` image. Newer releases are published on `ghcr.io/intentionally-left-nil/pixelfed`.
 
