@@ -30,19 +30,14 @@ For each docker image, the following tags are available:
 | 0.12.6                   | no           | 0.12.6 release                                                 |
 | 0.14.1                   | no           | 0.14.1 with the new docker pattern                                                 |
 | 0.14.3                   | no           | 0.14.3 pattern                                                 |
-| latest                   | yes          | Latest tagged release (e.g. 0.14.3)                            |
+| 0.14.4                   | no           | 0.14.4 pattern                                                 |
+| latest                   | yes          | Latest tagged release (e.g. 0.14.4)                            |
 
 Tags up to and including `0.12.9` were published on the retired `ghcr.io/intentionally-left-nil/pixelfed-fpm` image. Newer releases are published on `ghcr.io/intentionally-left-nil/pixelfed`.
 
 # Custom modifications
 
-These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. Currently the patches are:
-
-## Handle fully-qualified domain names
-
-patch: [0020-Correctly-handle-fully-qualified-domains.patch](./patches/0020-Correctly-handle-fully-qualified-domains.patch)
-
-Hopefully this gets [upstreamed](https://github.com/pixelfed/pixelfed/pull/4617) soon. When referencing a username, if you use the full @username.domain.com, then clicking the generate links lead to a 404. This patch fixes pixelfed to properly return the username
+These builds of pixelfed contain changes to suit the author's personal needs. You can find them in the [patches](./patches/) directory. As of 0.14.4, there are no custom patches due to pixelfed better merging upstream fixes!
 
 # I don't want these patches/ I want to do it myself
 
